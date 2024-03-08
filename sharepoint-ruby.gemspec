@@ -7,9 +7,10 @@ Gem::Specification.new do |s|
   s.authors      = ["Michael Martin Moro"]
   s.email        = 'michael@unetresgrossebite.com'
   s.files        = Dir["lib/**/*", "MIT-LICENSE", "README.md"]
-  s.homepage     = 'https://github.com/Plaristote/sharepoint-ruby'
+  s.homepage     = 'https://github.com/tahawkins21/sharepoint-ruby'
   s.license      = '0BSD'
   s.require_path = 'lib'
 
-  s.add_runtime_dependency 'curb', '~> 0.8', '<= 0.9.11'
+ # s.add_runtime_dependency 'curb', '~> 0.8', '<= 1.0.5'
+ s.add_runtime_dependency 'curb', '= 1.0.5'
 end

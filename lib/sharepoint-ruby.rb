@@ -83,6 +83,45 @@ module Sharepoint
       end
     end
 
+    # def put_query method, uri, body = nil, skip_json=false, &block
+    #   uri        = if uri =~ /^http/ then uri else api_path(uri) end
+    #   arguments  = [ uri ]
+    #   arguments << body if method != :get
+    #   custom_method = :post if method == :put else method
+    #   result = Curl::Easy.send "http_#{custom_method}", *arguments do |curl|
+    #     curl.headers["Cookie"]          = @session.cookie
+    #     curl.headers["Accept"]          = "application/json;odata=verbose"
+    #     if method != :get
+    #       curl.headers["Content-Type"]    = curl.headers["Accept"]
+    #       curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
+    #       curl.headers["Authorization"] = "Bearer " + form_digest unless @getting_form_digest == true
+    #       #Allow for POST / MERGE via the PUT verb
+    #       if method == :put
+    #         curl.headers["X-HTTP-Method"] = "MERGE"
+    #         curl.headers["If-Match"] = "*"
+    #       end
+    #     end
+    #     curl.verbose = @verbose
+    #     @session.send :curl, curl unless not @session.methods.include? :curl
+    #     block.call curl           unless block.nil?
+    #   end
+    #   if !(skip_json || (result.body_str.nil? || result.body_str.empty?))
+    #     begin
+    #       data = JSON.parse result.body_str
+    #       puts data
+    #       raise Sharepoint::DataError.new data, uri, body unless data['error'].nil?
+    #       make_object_from_response data
+    #     rescue JSON::ParserError => e
+    #       raise Sharepoint::RequestError.new("Exception with body=#{body}, e=#{e.inspect}, #{e.backtrace.inspect}, response=#{result.body_str}")
+    #     end
+    #   elsif result.status.to_i >= 400
+    #     raise Sharepoint::RequestError.new("#{method.to_s.upcase} #{uri} responded with #{result.status}")
+    #   else
+    #     result.body_str
+    #     puts result.body_str
+    #   end
+    # end
+
     def make_object_from_response data
       if data['d']['results'].nil?
         data['d'] = data['d'][data['d'].keys.first] if data['d']['__metadata'].nil?
