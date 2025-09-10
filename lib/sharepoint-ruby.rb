@@ -40,9 +40,6 @@ module Sharepoint
       query :get, ''
     end
 
-    # Sharepoint uses 'X-RequestDigest' as a CSRF security-like.
-    # The form_digest method acquires a token or uses a previously acquired
-    # token if it is still supposed to be valid.
     def form_digest
       if @web_context.nil? or (not @web_context.is_up_to_date?)
         @getting_form_digest = true
@@ -56,17 +53,25 @@ module Sharepoint
       uri        = if uri =~ /^http/ then uri else api_path(uri) end
       arguments  = [ uri ]
       arguments << body if method != :get
+      if method == :merge
+        method = :post
+        custom_method = :merge
+      end 
+      
       result = Curl::Easy.send "http_#{method}", *arguments do |curl|
-        curl.headers["Cookie"]          = @session.cookie
-        curl.headers["Accept"]          = "application/json;odata=verbose"
+        # Use OAuth2 Bearer token for authentication
+        @session.curl(curl)
+        curl.headers["Accept"] = "application/json;odata=verbose"
         if method != :get
           curl.headers["Content-Type"]    = curl.headers["Accept"]
           curl.headers["X-RequestDigest"] = form_digest unless @getting_form_digest == true
-          curl.headers["Authorization"] = "Bearer " + form_digest unless @getting_form_digest == true
+        end
+        if custom_method == :merge
+          curl.headers["X-HTTP-Method"] = "MERGE"
+          curl.headers["If-Match"] = "*"
         end
         curl.verbose = @verbose
-        @session.send :curl, curl unless not @session.methods.include? :curl
-        block.call curl           unless block.nil?
+        block.call curl unless block.nil?
       end
       if !(skip_json || (result.body_str.nil? || result.body_str.empty?))
         begin
@@ -120,4 +125,3 @@ module Sharepoint
     end
   end
 end
-
